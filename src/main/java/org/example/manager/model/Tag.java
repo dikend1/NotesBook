@@ -1,7 +1,9 @@
 package org.example.manager.model;
 
 
-public class Tag {
+import java.io.Serializable;
+
+public class Tag implements Serializable {
     private String name;
 
     public Tag(String name) {

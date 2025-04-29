@@ -9,15 +9,21 @@ import javafx.scene.layout.*;
 import org.example.manager.model.Note;
 import org.example.manager.model.Tag;
 import org.example.manager.repo.KnowledgeBase;
+import org.example.manager.repo.History;
+import org.example.manager.FileManager;
+import org.w3c.dom.ls.LSOutput;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
+
 
 public class Main extends Application {
     private KnowledgeBase knowledgeBase =  new KnowledgeBase();
+
 
     public static void main(String[] args) {
         launch(args);
@@ -38,6 +44,11 @@ public class Main extends Application {
 
         Button addNoteButtom = new Button("Add Note");
         Button searchButtom = new Button("Search Notes by Tag");
+        Button saveButtom = new Button("Save Notes");
+        Button loadButtom = new Button("Load Notes");
+        Button undoButtom = new Button("Undo");
+        Button redoButtom = new Button("Redo");
+        Button deleteButtom = new Button("Delete Note");
 
 
         ListView<String> notesListView  = new ListView<>();
@@ -62,14 +73,60 @@ public class Main extends Application {
 
         searchButtom.setOnAction(e -> {
             String searchTag = tagTextfield.getText();
+            System.out.println("Searching for tag: " + searchTag);
+
             if(!searchTag.isEmpty()){
                 Tag tag = new Tag(searchTag.trim());
                 List<Note> filteredNotes = knowledgeBase.searchNotesByTag(tag);
+                if(filteredNotes.isEmpty()){
+                    System.out.println("No notes found for the tag: " + searchTag);
+                }
                 updateNotesList(notesListView, filteredNotes);
+            }else {
+                updateNotesList(notesListView, knowledgeBase.getNotes());
             }
         });
 
-        vBox.getChildren().addAll(noteTextArea, tagTextfield, addNoteButtom, searchButtom, notesListView);
+
+        saveButtom.setOnAction(e -> {
+            try{
+                knowledgeBase.saveNotesToFile("notes.dat");
+                showAlert("Success", "Notes saved successfully");
+            }catch (IOException ex){
+                showAlert("Error", "Error saving notes to file");
+            }
+        });
+
+        loadButtom.setOnAction(e -> {
+            knowledgeBase.loadNotesFromFile("notes.dat");
+            updateNotesList(notesListView);
+            showAlert("Success", "Notes loaded successfully");
+        });
+
+        undoButtom.setOnAction(e -> {
+            Note lastNote = knowledgeBase.undo();
+            if (lastNote != null) {
+                updateNotesList(notesListView);
+            }
+        });
+
+        redoButtom.setOnAction(e -> {
+            Note redoNote = knowledgeBase.redo();
+            if (redoNote != null){
+                updateNotesList(notesListView);
+            }
+        });
+
+        deleteButtom.setOnAction(e -> {
+            int selectedIndex = notesListView.getSelectionModel().getSelectedIndex();
+            if (selectedIndex != -1){
+                knowledgeBase.deleteNote(selectedIndex);
+                updateNotesList(notesListView);
+            }
+        });
+
+
+        vBox.getChildren().addAll(noteTextArea, tagTextfield, addNoteButtom, searchButtom, notesListView,saveButtom,loadButtom,undoButtom,redoButtom,deleteButtom);
 
         Scene scene = new Scene(vBox, 600, 400);
         primaryStage.setScene(scene);
@@ -86,10 +143,24 @@ public class Main extends Application {
 
     private void updateNotesList(ListView<String> notesListView, List<Note> filteredNotes){
         notesListView.getItems().clear();
-        for (Note note : filteredNotes){
-            String displayText = "Note: " + note.getText() + " | Tags: " + note.getTags().stream().map(Tag::getName).collect(Collectors.joining(", "));
-            notesListView.getItems().add(displayText);
+        if(filteredNotes.isEmpty()){
+            notesListView.getItems().add("No notes found");
         }
+        else {
+            for (Note note : filteredNotes) {
+                String displayText = "Note: " + note.getText() + " | Tags: " +
+                        note.getTags().stream().map(Tag::getName).collect(Collectors.joining(", "));
+                notesListView.getItems().add(displayText);
+            }
+        }
+    }
+
+    private void showAlert(String title, String message){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }

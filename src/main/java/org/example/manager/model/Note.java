@@ -1,10 +1,10 @@
 package org.example.manager.model;
 import org.example.manager.repo.History;
 
-import javax.swing.text.html.HTML;
+import java.io.Serializable;
 import java.util.List;
 
-public class Note extends History {
+public class Note implements Serializable {
     private String text;
     private List<Tag> tags;
 
@@ -36,12 +36,16 @@ public class Note extends History {
 
     // Delete - Удаление заметки
     public void deleteNote() {
-        this.text = null;
+        this.text = "";
         this.tags.clear();
     }
     // Метод для добавления тега к заметке
     public void addTag(Tag tag) {
         tags.add(tag);
+    }
+
+    public void removeTag(Tag tag) {
+        tags.remove(tag);
     }
 
 }
