@@ -1,7 +1,6 @@
 package org.example.manager;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
@@ -9,15 +8,11 @@ import javafx.scene.layout.*;
 import org.example.manager.model.Note;
 import org.example.manager.model.Tag;
 import org.example.manager.repo.KnowledgeBase;
-import org.example.manager.repo.History;
-import org.example.manager.FileManager;
-import org.w3c.dom.ls.LSOutput;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 
@@ -135,9 +130,16 @@ public class Main extends Application {
 
     private void updateNotesList(ListView<String> notesListView){
         notesListView.getItems().clear();
-        for(Note note : knowledgeBase.getNotes()){
-            String displayText = "Note: " + note.getText() + " | Tags: " + note.getTags().stream().map(Tag::getName).collect(Collectors.joining(", "));
-            notesListView.getItems().add(displayText);
+        List<Note> allNotes = knowledgeBase.getNotes();
+
+        if(allNotes.isEmpty()){
+            notesListView.getItems().add("z");
+        }else {
+            for (Note note : allNotes) {
+                String displayText = "Note: " + note.getText() + " | Tags: " +
+                        note.getTags().stream().map(Tag::getName).collect(Collectors.joining(", "));
+                notesListView.getItems().add(displayText);
+            }
         }
     }
 

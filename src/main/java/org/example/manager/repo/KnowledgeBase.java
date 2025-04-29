@@ -3,6 +3,7 @@ package org.example.manager.repo;
 import org.example.manager.FileManager;
 import org.example.manager.model.Note;
 import org.example.manager.model.Tag;
+import org.example.manager.Main;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -37,14 +38,7 @@ public class KnowledgeBase {
         history.saveState(newNote);
     }
 
-    public void displayNotes(){
-        for (Note note : notes) {
-            System.out.println("Note: " + note.getText());
-            for(Tag tag : note.getTags()){
-                System.out.println("Tag: " + tag.getName());
-            }
-        }
-    }
+
 
     public void saveNotesToFile(String fileName) throws IOException {
         try {
@@ -64,39 +58,20 @@ public class KnowledgeBase {
         }
     }
 
-    public void updateNoteText(int index, String newText){
-        if (index >= 0 && index < notes.size()) {
-            notes.get(index).updateText(newText);
-            history.saveState(notes.get(index));
-        }
-    }
+
 
     public void deleteNote(int index){
         if (index >= 0 && index < notes.size()) {
             notes.get(index).deleteNote();
             notes.remove(index);
         }
-    }
-
-
-    public void addTag(String tagName) {
-        Tag newTag = Tag.createTag(tagName);
-        tags.add(newTag);
-    }
-
-    public void updateTag(int index, String newTagName){
-        if (index >= 0 && index < tags.size()) {
-            tags.get(index).updateTag(newTagName);
+        try {
+            FileManager.saveNotesToFile(notes, "notes.dat");
+            System.out.println("Note deleted and changes saved to file.");
+        } catch (IOException e) {
+            System.err.println("Error saving notes to file after deletion: " + e.getMessage());
         }
-    }
 
-    public void deleteTag(int index){
-        if (index >= 0 && index < tags.size()) {
-            Tag  tag = tags.get(index);
-            removeTagFromNotes(tag);
-            tag.deleteTag();
-            tags.remove(index);
-        }
     }
 
     public List<Note> getNotes() {
@@ -123,9 +98,4 @@ public class KnowledgeBase {
         return null;
     }
 
-    public void removeTagFromNotes(Tag tag){
-        for (Note note : notes) {
-            note.removeTag(tag);
-        }
-    }
 }
