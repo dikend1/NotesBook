@@ -8,7 +8,7 @@
 ### 1.1 Пользовательский интерфейс (Frontend):
 - JavaFX: визуальный интерфейс с элементами управления.
 - Поля ввода: текст заметки и теги.
-- Кнопки: Add Note, Search, Save, Load, Undo, Redo, Delete.
+- Кнопки: Add Note, Save, Load, Undo, Delete.
 - ListView для отображения сохранённых заметок и тегов.
 
 ### 1.2 Backend (Логика приложения):
@@ -34,7 +34,6 @@
 - saveNotesToFile(fileName) — сохранение всех заметок в файл
 - loadNotesFromFile(fileName) — загрузка заметок из файла
 - undo() — отмена последнего действия
-- redo() — повтор отменённого действия
 
 ### FileManager.java
 - saveNotesToFile(notes, fileName) — запись объектов в файл
